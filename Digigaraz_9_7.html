@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digitální Garáž</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#00332B" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  
+  <style>
+    :root {
+      --primary-bg: #6EF8A4;
+      --sidebar-dark: #00332B;
+      --text-black: #000000;
+      --white: #ffffff;
+      --danger: #e74c3c;
+      --excel-green: #217346;
+      --shadow: 0 4px 12px rgba(0,0,0,0.15);
+      --transition: all 0.2s ease-in-out;
+    }
+
+    body {
+      background-color: var(--primary-bg);
+      color: var(--text-black);
+      font-family: 'Orbitron', Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(0,0,0,0.05);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .logo-img { height: 45px; border-radius: 6px; }
+
+    .menu-toggle {
+      font-size: 18px;
+      background: var(--sidebar-dark);
+      color: var(--primary-bg);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 15px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background-color: var(--sidebar-dark);
+      position: fixed;
+      height: 100%;
+      left: 0; top: 0;
+      z-index: 10000;
+      padding: 20px 15px;
+      box-sizing: border-box;
+      transform: translateX(0);
+      transition: var(--transition);
+      overflow-y: auto;
+    }
+
+    .sidebar a {
+      display: flex; /* Změněno pro lepší zarovnání ikon */
+      align-items: center;
+      color: var(--text-black);
+      padding: 14px 12px;
+      text-decoration: none;
+      border: 2px solid var(--text-black);
+      margin-bottom: 12px;
+      background-color: var(--primary-bg);
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-weight: 700;
+      transition: var(--transition);
+    }
+
+    .sidebar a span {
+      margin-right: 12px;
+      font-size: 1.2em;
+      min-width: 25px;
+      text-align: center;
+    }
+
+    .sidebar a:hover { background-color: var(--white); transform: scale(1.03); }
+
+    .sidebar .nav-header {
+      color: var(--white);
+      font-size: 0.85em;
+      margin: 20px 0 10px 0;
+      text-transform: uppercase;
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+      padding-bottom: 4px;
+    }
+
+    /* Obsah */
+    .content { 
+      margin-left: 280px; 
+      padding: 20px; 
+      transition: var(--transition); 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      text-align: center;
+      width: auto;
+      margin: 10px 0 25px 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 900;
+      text-decoration: underline;
+      text-underline-offset: 8px;
+    }
+
+    .image-container {
+      width: 100%;
+      max-width: 1450px;
+      text-align: center;
+    }
+
+    .image-container img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 4px solid var(--sidebar-dark);
+      box-shadow: var(--shadow);
+    }
+
+    /* Tabulka Závad */
+    .zavady-section {
+      width: 100%;
+      max-width: 1000px;
+      background: var(--white);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      font-family: 'Arial', sans-serif;
+    }
+
+    .zavady-form {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr auto;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .zavady-form input, .zavady-form select {
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .btn-add, .btn-excel {
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+    }
+
+    .btn-add { background: var(--sidebar-dark); color: var(--primary-bg); font-family: 'Orbitron'; }
+    .btn-excel { background: var(--excel-green); color: white; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+
+    .completed { text-decoration: line-through; color: #aaa; }
+    .vin-badge { background: #eee; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+
+    @media (max-width: 900px) {
+      .sidebar { left: -290px; }
+      .sidebar.open { left: 0; }
+      .content { margin-left: 0; }
+      .zavady-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-container">
+    <img class="logo-img" src="https://cdn.skoda-storyboard.com/2022/08/Header_Nove_logo-1920x730.jpg" alt="Škoda logo" />
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Menu</button>
+  </div>
+
+  <nav class="sidebar" id="sidebar">
+    <div id="navLinks">
+      <div class="nav-header">Aplikace</div>
+      <a href="#" onclick="showSection('home')"><span>🏠</span> DOMŮ</a>
+      <a href="#" onclick="showSection('zavady')"><span>🛠️</span> ZÁVADY</a>
+      
+      <div class="nav-header">Pracovní odkazy</div>
+      <a href="https://volkswagengroup-my.sharepoint.com/:o:/r/personal/vaclav_dytrych_skoda-auto_cz/_layouts/15/Doc.aspx?sourcedoc=%7B4d1ff076-8075-4b01-ad6d-291854971af1%7D&action=edit&wd=target(Pracovn%C3%AD.one%7C987744d3-c8cd-4170-b384-c29279a207ea%2FDongely%2BVRTS%7Cc7e569e7-3fd0-4577-aed9-9885d036cbaa%2F)&wdorigin=NavigationUrl" target="_blank"><span>📖</span> Dongely+VRTS</a>
+      <a href="https://app.powerbi.com/groups/me/apps/d3c70b8a-3039-45e5-af7d-8413a61e4faa/reports/863de4c7-14ba-495d-a1fa-66c7fcbf5d42/ReportSectiondafc9d5d06c1c0b5a309?experience=power-bi" target="_blank"><span>📊</span> PBI_M13</a>
+      <a href="https://app.powerbi.com/groups/me/apps/d2035a8c-38fc-4363-a9df-78c2159c6fce/reports/3c735b1d-0555-4bb8-9c3e-924c54ca14ba/fde2a588b06053c40244?ctid=2882be50-2012-4d88-ac86-544124e120c8&experience=power-bi" target="_blank"><span>📈</span> PBI_PR</a>
+      <a href="https://sqs-prohlizecky.skoda.vwgroup.com/ordssqsm/sqsr/sqsr.viz_ups?i_ident=UPS_M13" target="_blank"><span>🚨</span> Blikačka_M13</a>
+      <a href="https://eportal.skoda.vwg/carrfid-m13/users" target="_blank"><span>🚗</span> CarRFID_M13</a>
+      <a href="https://volkswagengroup-my.sharepoint.com/:u:/r/personal/vaclav_dytrych_skoda-auto_cz/Documents/Sledov%C3%A1n%C3%AD%20voz%C5%AF%20UPS%204.5.html?csf=1&web=1&e=HGjDEr" target="_blank"><span>📍</span> Sledování vozů</a>
+      <a href="https://volkswagengroup.sharepoint.com/:x:/r/sites/PFS1-UPSEC/_layouts/15/Doc2.aspx?action=edit&sourcedoc=%7Bd65c227a-50b8-4b21-b733-da282ff9227a%7D" target="_blank"><span>📝</span> Evidence Releasu</a>
+      <a href="https://volkswagengroup.sharepoint.com/:x:/r/sites/PFS1-UPSEC/_layouts/15/Doc2.aspx?action=edit&sourcedoc=%7B3a592dee-b1c0-4e35-8c79-b9e0d0b1af1d%7D" target="_blank"><span>❄️</span> KaltStart_M13</a>
+      <a href="https://volkswagengroup.sharepoint.com/sites/PAP8/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FPAP8%2FShared%20Documents%2FM13%2F0S%20Elroq_Enyaq%20MEB%20ID.S6.0" target="_blank"><span>🧠</span> PAP_ID.S.6</a>
+      <a href="https://edd.skoda.vwgroup.com/edd/#/watchcars/plan" target="_blank"><span>🗓️</span> EDD</a>
+      <a href="https://m365.cloud.microsoft/chat?auth=2" target="_blank"><span>🤖</span> Copilot AI</a>
+      <a href="https://www.sko-energo.cz/online-kamera/" target="_blank"><span>🦅</span> Sokolí Show</a>
+      <a href="https://volkswagengroup.sharepoint.com/:x:/r/sites/TRK-ZadrenkyOPN/_layouts/15/Doc2.aspx?action=edit&sourcedoc=%7B660c802c-2301-4a2e-bbdc-6d2a8e47054b%7D&wdOrigin=TEAMS-MAGLEV.teamsSdk_ns.rwc&wdExp=TEAMS-TREATMENT&wdhostclicktime=1766040267030&web=1" target="_blank"><span>🔒</span> Zadrženky</a>
+    </div>
+  </nav>
+
+  <main class="content" onclick="closeMenu()">
+    <div id="homeSection" style="width:100%; text-align:center;">
+      <h1>Digitální Garáž</h1> 
+      <div class="image-container" style="margin: 0 auto;">
+        <img src="https://www.wikicars.cz/files/uploads/2025/04/Skoda-Elroq-RS-1.jpg" alt="Elroq RS" />
+      </div>
+    </div>
+
+    <div id="zavadySection" style="display:none; width:100%;">
+      <h1>Evidence Závad</h1>
+      <div class="zavady-section">
+        <div class="zavady-form">
+          <input type="text" id="vinInput" placeholder="VIN / Číslo vozu">
+          <input type="text" id="descInput" placeholder="Popis závady">
+          <select id="prioInput">
+            <option value="Low">Nízká</option>
+            <option value="Medium" selected>Střední</option>
+            <option value="High">Vysoká 🔥</option>
+          </select>
+          <button class="btn-add" onclick="addZavada()">PŘIDAT</button>
+        </div>
+
+        <div class="btn-group">
+          <strong>Aktuální opravy:</strong>
+          <button class="btn-excel" onclick="exportToExcel()">📊 Export do Excelu</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Stav</th>
+              <th>VIN</th>
+              <th>Závada</th>
+              <th>Priorita</th>
+              <th>Akce</th>
+            </tr>
+          </thead>
+          <tbody id="zavadyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let zavady = JSON.parse(localStorage.getItem('garage_tasks_v3')) || [];
+
+    function showSection(s) {
+      document.getElementById('homeSection').style.display = s === 'home' ? 'block' : 'none';
+      document.getElementById('zavadySection').style.display = s === 'zavady' ? 'block' : 'none';
+      closeMenu();
+    }
+
+    function addZavada() {
+      const vin = document.getElementById('vinInput').value;
+      const desc = document.getElementById('descInput').value;
+      const prio = document.getElementById('prioInput').value;
+      if (!vin || !desc) return alert("Vyplňte VIN a popis.");
+      zavady.push({ id: Date.now(), vin, desc, prio, done: false });
+      document.getElementById('vinInput').value = '';
+      document.getElementById('descInput').value = '';
+      saveAndRender();
+    }
+
+    function toggleDone(id) {
+      zavady = zavady.map(z => z.id === id ? {...z, done: !z.done} : z);
+      saveAndRender();
+    }
+
+    function deleteZavada(id) {
+      if(confirm("Smazat?")) { zavady = zavady.filter(z => z.id !== id); saveAndRender(); }
+    }
+
+    function exportToExcel() {
+      if (zavady.length === 0) return alert("Není co exportovat.");
+      let csvContent = "\uFEFFsep=;\nStav;VIN;Závada;Priorita\n";
+      zavady.forEach(z => {
+        csvContent += `${z.done ? 'Hotovo' : 'V řešení'};${z.vin};${z.desc};${z.prio}\n`;
+      });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Zavady_${new Date().toLocaleDateString()}.csv`;
+      link.click();
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('garage_tasks_v3', JSON.stringify(zavady));
+      const tbody = document.getElementById('zavadyTableBody');
+      tbody.innerHTML = zavady.map(z => `
+        <tr>
+          <td><input type="checkbox" ${z.done ? 'checked' : ''} onclick="toggleDone(${z.id})" style="transform:scale(1.3)"></td>
+          <td><span class="vin-badge">${z.vin}</span></td>
+          <td class="${z.done ? 'completed' : ''}">${z.desc}</td>
+          <td style="color:${z.prio==='High'?'red':'black'}; font-weight:bold">${z.prio}</td>
+          <td><button onclick="deleteZavada(${z.id})" style="cursor:pointer; background:none; border:none; font-size:18px">🗑️</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
+    function closeMenu() { if(window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open'); }
+
+    window.onload = saveAndRender;
+  </script>
+</body>
+</html>

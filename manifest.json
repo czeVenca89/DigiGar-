@@ -1,0 +1,24 @@
+{
+  "name": "Digitální Garáž",
+  "short_name": "Garáž",
+  "description": "Rychlé odkazy: UPS, PBI, RFID, SQS, PAP atd.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#6EF8A4",
+  "theme_color": "#00332B",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
